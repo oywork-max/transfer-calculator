@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>송금대상액 계산기</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+}
+
+body{
+    background:#f5f6f8;
+    max-width:700px;
+    margin:auto;
+    padding:16px;
+}
+
+h1{
+    text-align:center;
+    margin:20px 0;
+    color:#111827;
+}
+
+.card{
+    background:white;
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.label-title{
+    font-weight:700;
+    margin-bottom:8px;
+}
+
+#targetAmount{
+    width:100%;
+    padding:14px;
+    font-size:22px;
+    border:1px solid #d1d5db;
+    border-radius:10px;
+}
+
+.money-item{
+    padding:14px 0;
+    border-bottom:1px solid #ececec;
+}
+
+.money-item:last-child{
+    border-bottom:none;
+}
+
+.top-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+.denom{
+    font-size:18px;
+    font-weight:700;
+}
+
+.amount{
+    font-size:18px;
+    font-weight:700;
+    color:#111827;
+}
+
+.controls{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+    width:100%;
+}
+
+.controls button{
+    flex:1;
+    height:44px;
+    min-width:0;
+    border:none;
+    border-radius:10px;
+    background:#e5e7eb;
+    font-weight:700;
+}
+
+.controls button:hover{
+    background:#d1d5db;
+}
+
+
+.qty{
+    flex:2;
+    height:44px;
+    text-align:center;
+    font-size:20px;
+    border:1px solid #d1d5db;
+    border-radius:10px;
+}
+
+.summary{
+    text-align:center;
+}
+
+.summary-title{
+    font-size:18px;
+    color:#666;
+}
+
+.total{
+    font-size:34px;
+    font-weight:800;
+    margin:10px 0;
+}
+
+.diff{
+    font-size:18px;
+    margin-top:8px;
+}
+
+.status{
+    margin-top:14px;
+    padding:14px;
+    border-radius:12px;
+    font-weight:700;
+    font-size:18px;
+}
+
+.match{
+    background:#e8f7ec;
+    color:#157347;
+}
+
+.short{
+    background:#fdeaea;
+    color:#c62828;
+}
+
+.over{
+    background:#eaf2ff;
+    color:#1565c0;
+}
+
+.reset-btn{
+    width:100%;
+    height:50px;
+    border:none;
+    border-radius:12px;
+    background:#111827;
+    color:white;
+    font-size:18px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+@media(max-width:600px){
+
+    .controls button{
+        min-width:46px;
+        font-size:14px;
+    }
+
+    .qty{
+        max-width:90px;
+    }
+
+    .amount{
+        font-size:16px;
+    }
+
+}
+</style>
+</head>
+
+<body>
+
+<h1>송금대상액 계산기</h1>
+
+<div class="card">
+
+    <div class="label-title">송금대상금액</div>
+
+    <input
+        id="targetAmount"
+        type="number"
+        placeholder="송금할 금액 입력">
+
+</div>
+
+<div class="card" id="moneyList"></div>
+
+<div class="card summary">
+
+    <div class="summary-title">총액</div>
+
+    <div id="total" class="total">
+        0원
+    </div>
+
+    <div id="difference" class="diff">
+        차이 : 0원
+    </div>
+
+    <div id="status" class="status match">
+        🟢 정확히 일치
+    </div>
+
+</div>
+
+<button
+    class="reset-btn"
+    onclick="resetAll()">
+    초기화
+</button>
+
+<script>
+
+const moneyData = [
+    ["10만원",100000],
+    ["5만원",50000],
+    ["1만원",10000],
+    ["5천원",5000],
+    ["1천원",1000],
+    ["500원",500],
+    ["100원",100],
+    ["50원",50],
+    ["10원",10]
+];
+
+const moneyList =
+document.getElementById("moneyList");
+
+moneyData.forEach((item,index)=>{
+
+    moneyList.innerHTML += `
+
+    <div class="money-item">
+
+        <div class="top-row">
+
+            <div class="denom">
+                ${item[0]}
+            </div>
+
+            <div
+                class="amount"
+                id="sum${index}">
+                0원
+            </div>
+
+        </div>
+
+        <div class="controls">
+
+            <button
+                onclick="changeQty(${index},-10)">
+                -10
+            </button>
+
+            <button
+                onclick="changeQty(${index},-1)">
+                -1
+            </button>
+
+            <input
+                id="qty${index}"
+                class="qty"
+                type="number"
+                min="0"
+                value="0"
+                oninput="calculate()">
+
+            <button
+                onclick="changeQty(${index},1)">
+                +1
+            </button>
+
+            <button
+                onclick="changeQty(${index},10)">
+                +10
+            </button>
+
+        </div>
+
+    </div>
+
+    `;
+
+});
+
+function changeQty(index,amount){
+
+    const input =
+    document.getElementById(
+        "qty"+index
+    );
+
+    let value =
+    Number(input.value)||0;
+
+    value += amount;
+
+    if(value < 0){
+        value = 0;
+    }
+
+    input.value = value;
+
+    calculate();
+}
+
+function calculate(){
+
+    let total = 0;
+
+    moneyData.forEach((item,index)=>{
+
+        const qty =
+        Number(
+            document.getElementById(
+                "qty"+index
+            ).value
+        ) || 0;
+
+        const sum =
+        qty * item[1];
+
+        total += sum;
+
+        document.getElementById(
+            "sum"+index
+        ).innerText =
+        sum.toLocaleString() + "원";
+
+    });
+
+    document.getElementById(
+        "total"
+    ).innerText =
+    total.toLocaleString() + "원";
+
+    const target =
+    Number(
+        document.getElementById(
+            "targetAmount"
+        ).value
+    ) || 0;
+
+    const diff =
+    target - total;
+
+    document.getElementById(
+        "difference"
+    ).innerText =
+    "차이 : " +
+    diff.toLocaleString() +
+    "원";
+
+    const status =
+    document.getElementById(
+        "status"
+    );
+
+    status.className =
+    "status";
+
+    if(diff === 0){
+
+        status.classList.add(
+            "match"
+        );
+
+        status.innerText =
+        "🟢 정확히 일치";
+
+    }
+    else if(diff > 0){
+
+        status.classList.add(
+            "short"
+        );
+
+        status.innerText =
+        "🔴 " +
+        diff.toLocaleString() +
+        "원 부족";
+
+    }
+    else{
+
+        status.classList.add(
+            "over"
+        );
+
+        status.innerText =
+        "🔵 " +
+        Math.abs(diff).toLocaleString() +
+        "원 초과";
+
+    }
+
+}
+
+function resetAll(){
+
+    document.getElementById(
+        "targetAmount"
+    ).value = "";
+
+    document
+    .querySelectorAll(".qty")
+    .forEach(input=>{
+
+        input.value = 0;
+
+    });
+
+    calculate();
+
+}
+
+calculate();
+
+</script>
+
+</body>
+</html>
