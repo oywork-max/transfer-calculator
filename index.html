@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>올리브영 더모케어 매장 빌단가 UP 세일즈 카드뉴스</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    body {
+      background-color: #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+      color: #1e293b;
+    }
+    /* 상단 컨트롤 툴바 */
+    .toolbar {
+      width: 640px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      padding: 12px 16px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      margin-bottom: 16px;
+    }
+    .nav-btns {
+      display: flex;
+      gap: 6px;
+    }
+    .nav-btn {
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #334155;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .nav-btn.active {
+      background: #82dc28;
+      border-color: #65a30d;
+      color: #0f172a;
+    }
+    .download-btn {
+      background: #0f172a;
+      color: #ffffff;
+      border: none;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 9px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+    .download-btn:hover {
+      background: #1e293b;
+    }
+
+    /* 1:1 정방형 캔버스 (640x640px, 2배율 캡처 시 1280x1280px) */
+    .card-viewport {
+      width: 640px;
+      height: 640px;
+      background: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+      position: relative;
+    }
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      padding: 32px;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+    .slide.active {
+      display: flex;
+    }
+
+    /* 공통 컬러 & 배지 */
+    .oy-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1e293b;
+      color: #82dc28;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 999px;
+      letter-spacing: -0.2px;
+    }
+    .dermo-tag {
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+
+    /* Slide 1: 표지 스타일 */
+    .slide-cover {
+      background: linear-gradient(145deg, #0f172a 0%, #1e293b 65%, #064e3b 100%);
+      color: #ffffff;
+    }
+    .cover-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .cover-hero {
+      margin-top: 12px;
+    }
+    .cover-sub {
+      color: #82dc28;
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      letter-spacing: -0.3px;
+    }
+    .cover-title {
+      font-size: 36px;
+      font-weight: 900;
+      line-height: 1.22;
+      letter-spacing: -1px;
+      margin-bottom: 18px;
+    }
+    .cover-title span {
+      color: #38bdf8;
+      text-decoration: underline;
+      text-underline-offset: 6px;
+    }
+    .cover-desc {
+      font-size: 14px;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+    .cover-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+    }
+    .cover-mini-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 14px;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .mini-brand {
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+    .mini-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 6px 0 12px;
+      line-height: 1.3;
+    }
+    .mini-up {
+      background: #82dc28;
+      color: #0f172a;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .cover-footer {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(130, 220, 40, 0.35);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: #e2e8f0;
+    }
+
+    /* Slide 2~4: 상품 상세 스타일 */
+    .prod-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .prod-badges {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .prod-title {
+      font-size: 23px;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: -0.6px;
+    }
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 14px;
+      margin: 6px 0;
+    }
+    .box-single {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .box-upsell {
+      background: #f0fdf4;
+      border: 2px solid #22c55e;
+      border-radius: 14px;
+      padding: 16px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .upsell-pill {
+      position: absolute;
+      top: -12px;
+      right: 12px;
+      background: #16a34a;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 900;
+      padding: 5px 12px;
+      border-radius: 999px;
+      box-shadow: 0 4px 10px rgba(22, 163, 74, 0.25);
+    }
+    .option-label {
+      font-size: 13px;
+      font-weight: 800;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+    .box-upsell .option-label {
+      color: #15803d;
+    }
+    .price-main {
+      font-size: 24px;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+    }
+    .box-upsell .price-main {
+      color: #14532d;
+    }
+    .unit-price {
+      font-size: 12.5px;
+      color: #64748b;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+    .box-upsell .unit-price {
+      color: #166534;
+      font-weight: 800;
+    }
+    .benefit-tag {
+      margin-top: 10px;
+      background: #dcfce7;
+      color: #15803d;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 6px 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    /* 크루 세일즈 박스 */
+    .crew-box {
+      background: #0f172a;
+      color: #ffffff;
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .trigger-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      color: #38bdf8;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      padding-bottom: 8px;
+    }
+    .script-text {
+      font-size: 13.5px;
+      line-height: 1.52;
+      color: #f8fafc;
+      font-weight: 500;
+    }
+    .hl {
+      color: #82dc28;
+      font-weight: 800;
+    }
+    .cross-tip {
+      background: rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: #fde047;
+      font-weight: 700;
+    }
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      color: #64748b;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 10px;
+    }
+
+    /* Slide 5: 치트시트 요약표 */
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin: 6px 0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .summary-table th {
+      background: #1e293b;
+      color: #ffffff;
+      padding: 10px 8px;
+      text-align: left;
+      font-weight: 800;
+    }
+    .summary-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #1e293b;
+      font-weight: 600;
+    }
+    .summary-table tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    .up-badge-sm {
+      background: #dcfce7;
+      color: #15803d;
+      font-weight: 900;
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+    .rules-box {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .rules-title {
+      font-size: 15px;
+      font-weight: 900;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+    .rule-item {
+      font-size: 13px;
+      line-height: 1.45;
+      color: #334155;
+      font-weight: 600;
+    }
+    .rule-item strong {
+      color: #0369a1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 컨트롤바 -->
+  <div class="toolbar">
+    <div class="nav-btns">
+      <button class="nav-btn active" onclick="showSlide(0)">1. 표지</button>
+      <button class="nav-btn" onclick="showSlide(1)">2. 에스트라</button>
+      <button class="nav-btn" onclick="showSlide(2)">3. 라로슈포제</button>
+      <button class="nav-btn" onclick="showSlide(3)">4. 바이오더마</button>
+      <button class="nav-btn" onclick="showSlide(4)">5. 크루 치트시트</button>
+    </div>
+    <button class="download-btn" onclick="downloadCurrentCard()">
+      📸 현재 카드 1:1 이미지(PNG) 저장
+    </button>
+  </div>
+
+  <!-- 1:1 정방형 카드뉴스 뷰포트 -->
+  <div class="card-viewport" id="cardCaptureArea">
+
+    <!-- SLIDE 1: 표지 -->
+    <div class="slide slide-cover active">
+      <div class="cover-top">
+        <span class="oy-badge">OLIVE YOUNG STORE CREW GUIDE</span>
+        <span class="dermo-tag">DERMO COSMETIC</span>
+      </div>
+
+      <div class="cover-hero">
+        <div class="cover-sub">매장 고객 접점(매대·POS) 즉각 활용 가이드</div>
+        <h1 class="cover-title">
+          [더모케어] 매장 빌단가 수직 상승!<br />
+          <span>리필·대용량 기획</span> 세일즈북
+        </h1>
+        <p class="cover-desc">
+          단품을 들고 고민하는 고객에게 직관적인 차액과 용량 혜택을 제안해<br />
+          매장 내 즉시 구매 전환과 빌단가(객단가)를 동시에 끌어올리는 핵심 스크립트
+        </p>
+      </div>
+
+      <div class="cover-cards">
+        <div class="cover-mini-card">
+          <div>
+            <div class="mini-brand">AESTURA</div>
+            <div class="mini-name">아토베리어365 크림<br/>본품+리필 기획</div>
+          </div>
+          <div class="mini-up">빌단가 +10,400원 UP</div>
+        </div>
+        <div class="cover-mini-card">
+          <div>
+            <div class="mini-brand">LA ROCHE-POSAY</div>
+            <div class="mini-name">시카플라스트 밤 B5+<br/>100ml 대용량 기획</div>
+          </div>
+          <div class="mini-up">빌단가 +14,800원 UP</div>
+        </div>
+        <div class="cover-mini-card">
+          <div>
+            <div class="mini-brand">BIODERMA</div>
+            <div class="mini-name">센시비오 H2O 워터<br/>500ml×2 더블 기획</div>
+          </div>
+          <div class="mini-up">빌단가 +14,000원 UP</div>
+        </div>
+      </div>
+
+      <div class="cover-footer">
+        <span>💡 <strong>핵심 포인트:</strong> "단품에 딱 만 원대만 보태면 본품 용량이 하나 더!"</span>
+        <span>Slide 1 / 5</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: 에스트라 아토베리어365 크림 -->
+    <div class="slide">
+      <div class="prod-header">
+        <div class="prod-badges">
+          <span class="oy-badge">더모케어 크림 랭킹 1위</span>
+          <span class="dermo-tag">에스트라 (AESTURA)</span>
+        </div>
+        <h2 class="prod-title">아토베리어365 크림 (단품 vs 본품+리필 기획)</h2>
+      </div>
+
+      <div class="compare-grid">
+        <div class="box-single">
+          <div>
+            <div class="option-label">일반 단품 (80ml)</div>
+            <div class="price-main">33,000원</div>
+            <div class="unit-price">10ml당 4,125원</div>
+          </div>
+          <div style="font-size: 12px; color:#64748b; margin-top:10px;">
+            • 본품 80ml 단일 구성<br/>• 데일리 사용 시 약 1~1.5개월 소진
+          </div>
+        </div>
+
+        <div class="box-upsell">
+          <div class="upsell-pill">빌단가 +10,400원 UP!</div>
+          <div>
+            <div class="option-label">★ 80ml 본품 + 80ml 리필 기획 (총 160ml)</div>
+            <div class="price-main">43,400원</div>
+            <div class="unit-price">10ml당 2,713원 (단위당 34% 절감!)</div>
+          </div>
+          <div class="benefit-tag">
+            🔥 단품 2개 구매(66,000원) 대비 22,600원 즉시 세이브!
+          </div>
+        </div>
+      </div>
+
+      <div class="crew-box">
+        <div class="trigger-row">
+          📍 고객 접점 상황: 매대에서 80ml 단품을 들고 보거나 POS로 단품을 가져온 고객
+        </div>
+        <div class="script-text">
+          "고객님! 에스트라 크림은 데일리로 바르다 보면 한 통 금방 비우시는데, 지금 보시는 단품에 <span class="hl">딱 10,400원만 더 보태시면 똑같은 80ml 본품 용량 리필이 통째로 하나 더</span> 들어있어요! 10ml당 단가도 <span class="hl">34%나 더 저렴</span>하고, 리필 기획은 현장에서도 가장 먼저 품절되는 구성이라 재고 있을 때 바로 챙겨가시는 게 무조건 이득이세요!"
+        </div>
+        <div class="cross-tip">
+          ➕ 추가 입수(+1) 추천: 에스트라 세라카밍 시트 마스크 (1매) 또는 미니 크림미스트 연결
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>품번 참고: 단품(A000000199923) / 리필기획(A000000200647) ※ 매장 행사가 기준 변동 가능</span>
+        <span>Slide 2 / 5</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: 라로슈포제 시카플라스트 밤 B5+ -->
+    <div class="slide">
+      <div class="prod-header">
+        <div class="prod-badges">
+          <span class="oy-badge">더모 시카케어 스테디셀러</span>
+          <span class="dermo-tag">라로슈포제 (LA ROCHE-POSAY)</span>
+        </div>
+        <h2 class="prod-title">시카플라스트 밤 B5+ (40ml 소용량 vs 100ml 대용량 기획)</h2>
+      </div>
+
+      <div class="compare-grid">
+        <div class="box-single">
+          <div>
+            <div class="option-label">소용량 단품 (40ml)</div>
+            <div class="price-main">23,000원</div>
+            <div class="unit-price">10ml당 5,750원</div>
+          </div>
+          <div style="font-size: 12px; color:#64748b; margin-top:10px;">
+            • 40ml 소용량 튜브<br/>• 나이트 도톰 케어 시 빠른 소진
+          </div>
+        </div>
+
+        <div class="box-upsell">
+          <div class="upsell-pill">빌단가 +14,800원 UP!</div>
+          <div>
+            <div class="option-label">★ 100ml 대용량 + 증정 기획 (용량 2.5배)</div>
+            <div class="price-main">37,800원</div>
+            <div class="unit-price">10ml당 3,780원 (단위당 34% 절감!)</div>
+          </div>
+          <div class="benefit-tag">
+            🔥 40ml에 14,800원만 추가하면 용량 2.5배 + 증정 샘플까지!
+          </div>
+        </div>
+      </div>
+
+      <div class="crew-box">
+        <div class="trigger-row">
+          📍 고객 접점 상황: 더모 매대에서 40ml 소용량과 100ml 대용량 가격표를 비교 중인 고객
+        </div>
+        <div class="script-text">
+          "고객님! 시카밤 휴대용 찾으시는 게 아니라면 무조건 <span class="hl">100ml 대용량 기획</span> 추천드려요! 40ml 가격에 <span class="hl">14,800원만 추가하시면 용량은 2.5배(100ml)</span>로 넉넉해지고 여행용 증정품까지 들어있어요. 10ml당 가격도 <span class="hl">34% 이상 절약</span>돼서 매장에서도 10분 중 9분은 대용량으로 바로 픽업해 가셔서 오늘 저녁부터 듬뿍 발라 케어하세요!"
+        </div>
+        <div class="cross-tip">
+          ➕ 추가 입수(+1) 추천: 케어플러스 상처커버 스팟패치 (국소 트러블 진정 동시 케어)
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>품번 참고: 40ml(A000000178961) / 100ml 기획(A000000189320) ※ 매장 행사가 기준 변동 가능</span>
+        <span>Slide 3 / 5</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: 바이오더마 센시비오 H2O -->
+    <div class="slide">
+      <div class="prod-header">
+        <div class="prod-badges">
+          <span class="oy-badge">더모 클렌징워터 부동의 1위</span>
+          <span class="dermo-tag">바이오더마 (BIODERMA)</span>
+        </div>
+        <h2 class="prod-title">센시비오 H2O 클렌징워터 (500ml 단품 vs 더블 기획)</h2>
+      </div>
+
+      <div class="compare-grid">
+        <div class="box-single">
+          <div>
+            <div class="option-label">일반 단품 (500ml 1입)</div>
+            <div class="price-main">27,000원</div>
+            <div class="unit-price">100ml당 5,400원</div>
+          </div>
+          <div style="font-size: 12px; color:#64748b; margin-top:10px;">
+            • 500ml 본품 1병 단일 구성<br/>• 매일 화장솜 사용 시 재구매 주기 빠름
+          </div>
+        </div>
+
+        <div class="box-upsell">
+          <div class="upsell-pill">빌단가 +14,000원 UP!</div>
+          <div>
+            <div class="option-label">★ 500ml×2입 더블 기획 (+증정, 총 1,000ml)</div>
+            <div class="price-main">41,000원</div>
+            <div class="unit-price">100ml당 4,100원 (단위당 24% 절감!)</div>
+          </div>
+          <div class="benefit-tag">
+            🔥 두 번째 500ml 정품 한 병을 사실상 반값(14,000원)에 득템!
+          </div>
+        </div>
+      </div>
+
+      <div class="crew-box">
+        <div class="trigger-row">
+          📍 고객 접점 상황: 클렌징/더모 매대에서 500ml 단품 한 병을 바구니에 담는 고객
+        </div>
+        <div class="script-text">
+          "고객님! 바이오더마 워터는 매일 화장솜에 적셔 쓰다 보면 한 통 금방 쓰시는데, 지금 담으신 500ml 단품에 <span class="hl">딱 14,000원만 더 보태시면 500ml 정품 한 병이 아예 더 들어있는 더블 기획</span>으로 가져가실 수 있어요! 단품 두 병 사시는 것보다 <span class="hl">13,000원이나 바로 아끼시는 셈</span>이라 매장 재고 있을 때 사은품까지 챙겨 바로 들구가시는 게 가장 알뜰해요!"
+        </div>
+        <div class="cross-tip">
+          ➕ 추가 입수(+1) 추천: 필리밀리 1/2 화장솜 또는 순면 엠보 화장솜 (클렌징워터 필수 짝꿍템)
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>품번 참고: 500ml 단품(A000000012594) / 더블기획(A000000184125) ※ 매장 행사가 기준 변동 가능</span>
+        <span>Slide 4 / 5</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: 현장 크루 치트시트 요약표 -->
+    <div class="slide">
+      <div class="prod-header">
+        <div class="prod-badges">
+          <span class="oy-badge">CREW CHEAT SHEET</span>
+          <span class="dermo-tag">포스(POS) & 매대 비치용 요약</span>
+        </div>
+        <h2 class="prod-title">더모케어 빌단가 업셀링 한눈에 보기 & 응대 3계명</h2>
+      </div>
+
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>상품명</th>
+            <th>단품 기준가</th>
+            <th>리필·대용량 기획가</th>
+            <th>빌단가 상승폭</th>
+            <th>핵심 숫자 멘트</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>에스트라 크림</strong></td>
+            <td>33,000원 (80ml)</td>
+            <td><strong>43,400원</strong> (80+80ml)</td>
+            <td><span class="up-badge-sm">+10,400원 UP</span></td>
+            <td>"10,400원 보태면 본품 리필 1개 더!"</td>
+          </tr>
+          <tr>
+            <td><strong>라로슈포제 시카밤</strong></td>
+            <td>23,000원 (40ml)</td>
+            <td><strong>37,800원</strong> (100ml+증정)</td>
+            <td><span class="up-badge-sm">+14,800원 UP</span></td>
+            <td>"14,800원 차이로 용량 2.5배 UP!"</td>
+          </tr>
+          <tr>
+            <td><strong>바이오더마 워터</strong></td>
+            <td>27,000원 (500ml)</td>
+            <td><strong>41,000원</strong> (500ml×2입)</td>
+            <td><span class="up-badge-sm">+14,000원 UP</span></td>
+            <td>"14,000원 보태면 두 번째 병이 반값!"</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="rules-box">
+        <div class="rules-title">💡 매장 고객 접점 응대 3계명 & 추가 입수 꿀팁</div>
+        <div class="rule-item">
+          <strong>1. 전체 금액 대신 '차액(보태는 금액)'으로 말하기:</strong> "43,400원짜리 사세요" 대신 <strong>"단품에 딱 10,400원만 더 보태시면 본품 용량이 하나 더 들어있어요"</strong>라고 말해야 심리적 허들이 낮아집니다.
+        </div>
+        <div class="rule-item">
+          <strong>2. 오프라인 매장 즉시 구매 혜택 강조:</strong> "이 리필/더블 기획은 현장에서도 가장 먼저 빠지는 인기 구성이라 <strong>기다림 없이 오늘 저녁부터 바로 쓰실 수 있게 재고 있을 때 챙겨가세요!</strong>"
+        </div>
+        <div class="rule-item">
+          <strong>3. 파생 소모품(+1 입수) 세트로 묶기:</strong> 클렌징워터엔 <strong>화장솜</strong>, 시카밤엔 <strong>스팟패치</strong>, 장벽크림엔 <strong>진정 마스크팩 1매</strong>를 가볍게 제안해 빌단가와 입수를 동시에 잡으세요.
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>OLIVE YOUNG STORE SALES PLAYBOOK • DERMO CARE EDITION</span>
+        <span>Slide 5 / 5</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentSlideIndex = 0;
+    const slides = document.querySelectorAll('.slide');
+    const navBtns = document.querySelectorAll('.nav-btn');
+
+    function showSlide(index) {
+      slides.forEach((s, i) => {
+        s.classList.toggle('active', i === index);
+      });
+      navBtns.forEach((b, i) => {
+        b.classList.toggle('active', i === index);
+      });
+      currentSlideIndex = index;
+    }
+
+    function downloadCurrentCard() {
+      const target = document.getElementById('cardCaptureArea');
+      html2canvas(target, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      }).then(canvas => {
+        const link = document.createElement('a');
+        const names = ['01_표지', '02_에스트라', '03_라로슈포제', '04_바이오더마', '05_치트시트'];
+        link.download = `올리브영_더모케어_빌단가UP_${names[currentSlideIndex]}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>
