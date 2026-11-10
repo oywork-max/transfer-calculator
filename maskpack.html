@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>올리브영 마스크팩(시트팩) 매장 빌단가 UP 세일즈 카드뉴스</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    :root {
+      --oy-green: #9bce26;
+      --oy-dark-green: #1f4d19;
+      --oy-coral: #ff5757;
+      --oy- coral-light: #fff0f0;
+      --oy-yellow: #ffd93d;
+      --oy-bg: #f4f6f8;
+      --oy-dark: #181a1c;
+      --oy-gray: #6b7280;
+      --oy-border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #1e2227;
+      color: var(--oy-dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+
+    /* 상단 컨트롤 툴바 */
+    .toolbar {
+      width: 640px;
+      background: #2b3038;
+      border-radius: 14px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .nav-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .nav-btn {
+      background: #3a404a;
+      color: #d1d5db;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 13px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .nav-btn:hover {
+      background: #4b5360;
+      color: #fff;
+    }
+
+    .nav-btn.active {
+      background: var(--oy-green);
+      color: #111;
+      box-shadow: 0 2px 8px rgba(155, 206, 38, 0.4);
+    }
+
+    .download-btn {
+      background: linear-gradient(135deg, #ff5757, #ff2e63);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 15px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(255, 87, 87, 0.35);
+      transition: transform 0.15s ease;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    /* 1:1 정방형 카드 캔버스 (640x640px, 2배율 캡처 시 1280x1280px) */
+    .card-viewport {
+      width: 640px;
+      height: 640px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      background: #fff;
+    }
+
+    .slide {
+      width: 640px;
+      height: 640px;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 30px 32px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    /* Slide 1: 표지 */
+    .slide-cover {
+      background: radial-gradient(circle at 85% 15%, #2f6826 0%, #132a13 60%, #0d1b0e 100%);
+      color: #fff;
+    }
+
+    .cover-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-pill {
+      background: var(--oy-green);
+      color: #0d1b0e;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      letter-spacing: 0.4px;
+    }
+
+    .cover-date {
+      font-size: 12px;
+      color: #a3b899;
+      font-weight: 600;
+    }
+
+    .cover-hero {
+      margin-top: 10px;
+    }
+
+    .cover-sub {
+      color: var(--oy-green);
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cover-title {
+      font-size: 36px;
+      font-weight: 900;
+      line-height: 1.24;
+      letter-spacing: -0.8px;
+      margin-bottom: 14px;
+    }
+
+    .cover-title .hl {
+      color: var(--oy-yellow);
+      text-decoration: underline;
+      text-underline-offset: 6px;
+    }
+
+    .cover-desc {
+      font-size: 14.5px;
+      color: #d8e6d3;
+      line-height: 1.55;
+      font-weight: 500;
+    }
+
+    .cover-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 8px 0;
+    }
+
+    .cover-item {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(155, 206, 38, 0.35);
+      border-radius: 14px;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .cover-item-tag {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--oy-green);
+      margin-bottom: 6px;
+    }
+
+    .cover-item-name {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.35;
+      margin-bottom: 12px;
+    }
+
+    .cover-item-up {
+      background: var(--oy-coral);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      padding: 6px 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .cover-footer-box {
+      background: rgba(155, 206, 38, 0.14);
+      border-left: 4px solid var(--oy-green);
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #eef6eb;
+    }
+
+    /* Slide 2~4: 상품 상세 공통 */
+    .slide-product {
+      background: #f8fafc;
+    }
+
+    .prod-header {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .rank-badge {
+      background: #181a1c;
+      color: var(--oy-green);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 5px 12px;
+      border-radius: 999px;
+    }
+
+    .cat-step {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--oy-gray);
+    }
+
+    .prod-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: #111827;
+      letter-spacing: -0.5px;
+      line-height: 1.25;
+    }
+
+    .prod-sub {
+      font-size: 13px;
+      color: #4b5563;
+      font-weight: 600;
+    }
+
+    /* 단품 vs 기획 비교 그리드 */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.22fr;
+      gap: 14px;
+      align-items: stretch;
+      margin: 4px 0;
+    }
+
+    .comp-box {
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .comp-single {
+      background: #ffffff;
+      border: 1.5px solid #d1d5db;
+      color: #374151;
+    }
+
+    .comp-upsell {
+      background: linear-gradient(160deg, #1b4317 0%, #10280e 100%);
+      border: 2px solid var(--oy-green);
+      color: #ffffff;
+      box-shadow: 0 10px 24px rgba(27, 67, 23, 0.22);
+    }
+
+    .upsell-pill {
+      position: absolute;
+      top: -12px;
+      right: 14px;
+      background: var(--oy-coral);
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 900;
+      padding: 5px 12px;
+      border-radius: 999px;
+      box-shadow: 0 4px 10px rgba(255, 87, 87, 0.4);
+    }
+
+    .comp-label {
+      font-size: 12.5px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      display: inline-block;
+    }
+
+    .comp-single .comp-label {
+      color: #6b7280;
+    }
+
+    .comp-upsell .comp-label {
+      color: var(--oy-green);
+    }
+
+    .comp-OptionName {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .price-orig {
+      font-size: 12px;
+      text-decoration: line-through;
+      opacity: 0.65;
+      font-weight: 600;
+    }
+
+    .price-sale {
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin: 2px 0 8px;
+    }
+
+    .comp-upsell .price-sale {
+      color: var(--oy-yellow);
+    }
+
+    .unit-price-tag {
+      font-size: 12.5px;
+      font-weight: 800;
+      padding: 7px 10px;
+      border-radius: 8px;
+    }
+
+    .comp-single .unit-price-tag {
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+
+    .comp-upsell .unit-price-tag {
+      background: rgba(155, 206, 38, 0.2);
+      color: #e6f7c2;
+      border: 1px solid rgba(155, 206, 38, 0.45);
+    }
+
+    /* 크루 세일즈 박스 */
+    .crew-box {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-left: 6px solid var(--oy-green);
+      border-radius: 14px;
+      padding: 15px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .trigger-row {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #1f4d19;
+      background: #eef8d6;
+      padding: 6px 10px;
+      border-radius: 6px;
+      line-height: 1.35;
+    }
+
+    .script-row {
+      font-size: 13.2px;
+      line-height: 1.52;
+      color: #1f2937;
+      font-weight: 600;
+    }
+
+    .script-row .num-hl {
+      background: #fff1f2;
+      color: #e11d48;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .cross-row {
+      font-size: 12px;
+      color: #4b5563;
+      font-weight: 700;
+      border-top: 1px dashed #e2e8f0;
+      padding-top: 7px;
+    }
+
+    .cross-row strong {
+      color: #0f172a;
+    }
+
+    .prod-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 600;
+      padding-top: 2px;
+    }
+
+    /* Slide 5: 치트시트 요약표 */
+    .slide-summary {
+      background: #ffffff;
+    }
+
+    .sum-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .sum-table th {
+      background: #181a1c;
+      color: #fff;
+      padding: 10px 8px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .sum-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: center;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .sum-table tr:nth-child(even) td {
+      background: #f9fafb;
+    }
+
+    .sum-table .td-name {
+      text-align: left;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .sum-table .td-up {
+      color: #e11d48;
+      font-weight: 900;
+      background: #fff1f2 !important;
+    }
+
+    .guide-card {
+      background: #132a13;
+      color: #fff;
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .guide-title {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--oy-green);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .guide-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: #e2e8f0;
+    }
+
+    .guide-list li strong {
+      color: var(--oy-yellow);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 컨트롤 바 -->
+  <div class="toolbar">
+    <div class="nav-group">
+      <button class="nav-btn active" onclick="showSlide(0)">1. 표지</button>
+      <button class="nav-btn" onclick="showSlide(1)">2. 메디힐</button>
+      <button class="nav-btn" onclick="showSlide(2)">3. 토리든</button>
+      <button class="nav-btn" onclick="showSlide(3)">4. 넘버즈인</button>
+      <button class="nav-btn" onclick="showSlide(4)">5. 치트시트</button>
+    </div>
+    <button class="download-btn" onclick="downloadCurrentCard()">
+      📸 현재 카드 1:1 이미지(PNG) 저장
+    </button>
+  </div>
+
+  <!-- 1:1 카드뉴스 뷰포트 (640x640) -->
+  <div class="card-viewport" id="cardCaptureArea">
+
+    <!-- SLIDE 1: 표지 -->
+    <div class="slide slide-cover active">
+      <div class="cover-top-bar">
+        <span class="brand-pill">OLIVE YOUNG STORE CREW ONLY</span>
+        <span class="cover-date">실시간 가격·기획 검증 완료</span>
+      </div>
+
+      <div class="cover-hero">
+        <div class="cover-sub">🔥 낱개 1~2장 집는 고객님, 박스 기획으로 전환!</div>
+        <h1 class="cover-title">
+          [마스크팩 · 시트팩]<br />
+          매장 빌단가 수직 상승!<br />
+          <span class="hl">대용량·증정 기획 세일즈북</span>
+        </h1>
+        <p class="cover-desc">
+          마스크팩 월(Wall)과 POS 카운터에서 낱개 시트팩 고객에게<br />
+          <strong>장당 단가 절감 + 추가 증정 혜택</strong>을 직관적으로 제안해 매장 빌단가를 높이세요!
+        </p>
+      </div>
+
+      <div class="cover-cards">
+        <div class="cover-item">
+          <div>
+            <div class="cover-item-tag">BEST 01 · 진정 시트팩</div>
+            <div class="cover-item-name">메디힐 티트리<br />에센셜 마스크<br />(10+1매 기획)</div>
+          </div>
+          <div class="cover-item-up">빌단가 +8,900원 UP</div>
+        </div>
+        <div class="cover-item">
+          <div>
+            <div class="cover-item-tag">BEST 02 · 수분 시트팩</div>
+            <div class="cover-item-name">토리든 다이브인<br />히알루론산 마스크<br />(8+2매 기획)</div>
+          </div>
+          <div class="cover-item-up">빌단가 +12,000원 UP</div>
+        </div>
+        <div class="cover-item">
+          <div>
+            <div class="cover-item-tag">BEST 03 · 결케어 시트팩</div>
+            <div class="cover-item-name">넘버즈인 3번<br />결세럼 마스크<br />(4+1매 기획)</div>
+          </div>
+          <div class="cover-item-up">빌단가 +6,000원 UP</div>
+        </div>
+      </div>
+
+      <div class="cover-footer-box">
+        💡 <strong>매장 크루 핵심 포인트:</strong> 시트팩 낱개 구매 고객에게 <strong>"낱개 가격에 조금만 보태면 본품 1~2장이 공짜로 더 들어있고, 기다림 없이 오늘 밤부터 바로 1일 1팩 가능하다"</strong>는 점을 강조하세요!
+      </div>
+    </div>
+
+    <!-- SLIDE 2: 상품 1 (메디힐) -->
+    <div class="slide slide-product">
+      <div class="prod-header">
+        <div class="badge-row">
+          <span class="rank-badge">🏆 마스크팩 랭킹 1위 · 올영픽 스테디셀러</span>
+          <span class="cat-step">SLIDE 02 / 05</span>
+        </div>
+        <h2 class="prod-title">메디힐 티트리 에센셜 마스크</h2>
+        <p class="prod-sub">매일 쓰는 1일 1팩 진정템! 낱개 1장(1,000원) 고객을 10+1매 박스로 전환</p>
+      </div>
+
+      <div class="compare-grid">
+        <div class="comp-box comp-single">
+          <div>
+            <span class="comp-label">단품 구매 (낱개 1매)</span>
+            <div class="comp-OptionName">본품 1매 단품<br />(낱개 선택 시)</div>
+            <div class="price-orig">정가 2,000원</div>
+            <div class="price-sale">1,000원</div>
+          </div>
+          <div class="unit-price-tag">
+            1매당 가격: <strong>1,000원</strong><br />
+            <span style="font-size:11px; color:#6b7280;">(낱개 11장 구매 시 11,000원)</span>
+          </div>
+        </div>
+
+        <div class="comp-box comp-upsell">
+          <span class="upsell-pill">빌단가 +8,900원 UP!</span>
+          <div>
+            <span class="comp-label">★ 매장 추천 대용량 증정 기획</span>
+            <div class="comp-OptionName">10매 + 1매 추가 증정<br />(총 11매입 박스 기획)</div>
+            <div class="price-orig">정가 20,000원</div>
+            <div class="price-sale">9,900원</div>
+          </div>
+          <div class="unit-price-tag">
+            1매당 가격: <strong>900원 (장당 100원 절감!)</strong><br />
+            <span style="font-size:11px; color:#d9f99d;">낱개 10장 값보다 싸게 11장 득템!</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="crew-box">
+        <div class="trigger-row">
+          📍 <strong>고객 접점 상황(매대/POS):</strong> 마스크팩 월이나 POS에서 메디힐 시트팩 낱개 2~3장을 들고 있는 고객
+        </div>
+        <div class="script-row">
+          💬 "고객님! 메디힐 티트리는 매일 쓰시는 1일 1팩 1위 템인데, 낱개로는 장당 1,000원이지만 이 박스 기획으로 가져가시면 <span class="num-hl">9,900원에 총 11장(장당 900원)</span>이 들어있어요! 낱개 10장 가격보다도 저렴하게 <span class="num-hl">본품 1장을 공짜로 더</span> 챙기시는 셈이라, 매장 재고 있을 때 바로 가져가셔서 오늘 저녁부터 넉넉히 쓰시는 게 무조건 이득이세요!"
+        </div>
+        <div class="cross-row">
+          ➕ <strong>현장 크로스셀링(+1 입수) 팁:</strong> 진정 케어 고객이므로 <strong>케어플러스 스팟패치(3천 원대)</strong>를 함께 제안해 입수 동반 상승 유도!
+        </div>
+      </div>
+
+      <div class="prod-footer">
+        <span>검증 품번: 단품 A000000165597 / 10+1기획 A000000184129</span>
+        <span>OLIVE YOUNG STORE CREW SALES BOOK</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: 상품 2 (토리든) -->
+    <div class="slide slide-product">
+      <div class="prod-header">
+        <div class="badge-row">
+          <span class="rank-badge">💧 수분 시트팩 랭킹 상위 · 100만 후기템</span>
+          <span class="cat-step">SLIDE 03 / 05</span>
+        </div>
+        <h2 class="prod-title">토리든 다이브인 저분자 히알루론산 마스크</h2>
+        <p class="prod-sub">다이브인 세럼 한 병을 그대로! 1매/3매 소용량 고객을 8+2매(10매) 기획으로 전환</p>
+      </div>
+
+      <div class="compare-grid">
+        <div class="comp-box comp-single">
+          <div>
+            <span class="comp-label">단품 구매 (낱개 1매 / 3매입)</span>
+            <div class="comp-OptionName">본품 1매 단품<br />(3매입 소용량 4,500원)</div>
+            <div class="price-orig">정가 3,000원</div>
+            <div class="price-sale">1,500원</div>
+          </div>
+          <div class="unit-price-tag">
+            1매당 가격: <strong>1,500원</strong><br />
+            <span style="font-size:11px; color:#6b7280;">(낱개 10장 구매 시 15,000원)</span>
+          </div>
+        </div>
+
+        <div class="comp-box comp-upsell">
+          <span class="upsell-pill">빌단가 +12,000원 UP!</span>
+          <div>
+            <span class="comp-label">★ 매장 추천 대용량 증정 기획</span>
+            <div class="comp-OptionName">8매 + 2매 추가 증정<br />(총 10매입 대용량 기획)</div>
+            <div class="price-orig">정가 30,000원</div>
+            <div class="price-sale">13,500원</div>
+          </div>
+          <div class="unit-price-tag">
+            1매당 가격: <strong>1,350원 (장당 150원 절감!)</strong><br />
+            <span style="font-size:11px; color:#d9f99d;">낱개 9장 가격에 10장! (1,500원 즉시 절약)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="crew-box">
+        <div class="trigger-row">
+          📍 <strong>고객 접점 상황(매대/POS):</strong> 매대에서 토리든 마스크팩 1매(1,500원) 또는 3매입(4,500원)을 고르는 고객
+        </div>
+        <div class="script-row">
+          💬 "고객님! 토리든 수분팩은 낱개나 3매입으로 사시면 장당 1,500원인데, 바로 옆 <span class="num-hl">8+2매(총 10매) 기획은 13,500원</span>이라 <span class="num-hl">장당 1,350원</span>으로 확 내려가요! 낱개 9장 값에 본품 1장을 공짜로 더 드리는 인기 구성이라, 배송 기다릴 필요 없이 오늘 매장에서 박스 기획으로 바로 픽업해 가시는 분들이 가장 많으세요!"
+        </div>
+        <div class="cross-row">
+          ➕ <strong>현장 크로스셀링(+1 입수) 팁:</strong> 팩 전 피부결 정돈용 <strong>필리밀리 1/2 화장솜(2천 원대)</strong> 또는 <strong>토리든 립에센스</strong> 연계 추천!
+        </div>
+      </div>
+
+      <div class="prod-footer">
+        <span>검증 품번: 단품 A000000143065 / 10매기획 A000000158134</span>
+        <span>OLIVE YOUNG STORE CREW SALES BOOK</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: 상품 3 (넘버즈인) -->
+    <div class="slide slide-product">
+      <div class="prod-header">
+        <div class="badge-row">
+          <span class="rank-badge">✨ 화잘먹 결케어 1위 · 고단가 프리미엄 시트팩</span>
+          <span class="cat-step">SLIDE 04 / 05</span>
+        </div>
+        <h2 class="prod-title">넘버즈인 3번 보들보들 결세럼 마스크</h2>
+        <p class="prod-sub">모공·결케어 집중 관리! 10장 대용량이 부담스러운 고객에게 딱 맞는 4+1매 알짜 기획</p>
+      </div>
+
+      <div class="compare-grid">
+        <div class="comp-box comp-single">
+          <div>
+            <span class="comp-label">단품 구매 (낱개 1매)</span>
+            <div class="comp-OptionName">본품 1매 단품<br />(낱개 선택 시)</div>
+            <div class="price-orig">정가 4,000원</div>
+            <div class="price-sale">2,000원</div>
+          </div>
+          <div class="unit-price-tag">
+            1매당 가격: <strong>2,000원</strong><br />
+            <span style="font-size:11px; color:#6b7280;">(낱개 5장 구매 시 10,000원)</span>
+          </div>
+        </div>
+
+        <div class="comp-box comp-upsell">
+          <span class="upsell-pill">빌단가 +6,000원 UP!</span>
+          <div>
+            <span class="comp-label">★ 매장 추천 +1매 증정 기획</span>
+            <div class="comp-OptionName">4매 + 1매 추가 증정<br />(총 5매입 박스 기획)</div>
+            <div class="price-orig">정가 16,000원</div>
+            <div class="price-sale">8,000원</div>
+          </div>
+          <div class="unit-price-tag">
+            1매당 가격: <strong>1,600원 (장당 400원 절감!)</strong><br />
+            <span style="font-size:11px; color:#d9f99d;">낱개 4장 값(8,000원)에 본품 1장 통째로 증정!</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="crew-box">
+        <div class="trigger-row">
+          📍 <strong>고객 접점 상황(매대/POS):</strong> 넘버즈인 3번 결세럼 시트팩 낱개(2,000원)를 2~3장 들고 있는 고객
+        </div>
+        <div class="script-row">
+          💬 "고객님, 넘버즈인 3번 팩은 낱개로 사시면 1장에 2,000원인데, 지금 <span class="num-hl">8,000원짜리 4+1매 기획팩</span>으로 가져가시면 <span class="num-hl">4장 가격에 본품 1장(2,000원)이 공짜</span>로 더 들어있어서 <span class="num-hl">장당 1,600원</span>꼴이에요! 2~3장 사시는 가격에 조금만 보태시면 총 5장을 챙겨가실 수 있어서 현장 재고 있을 때 바로 가져가시는 게 훨씬 이득이세요!"
+        </div>
+        <div class="cross-row">
+          ➕ <strong>현장 크로스셀링(+1 입수) 팁:</strong> 모공·결 고민 고객에게 <strong>일소/차앤박 코팩 1회분 단품</strong>이나 <strong>쿨링 마사저</strong>를 함께 제안하세요!
+        </div>
+      </div>
+
+      <div class="prod-footer">
+        <span>검증 품번: 단품 A000000162201 / 4+1기획 A000000171593</span>
+        <span>OLIVE YOUNG STORE CREW SALES BOOK</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: 현장 Crew 치트시트 요약표 -->
+    <div class="slide slide-summary">
+      <div class="prod-header">
+        <div class="badge-row">
+          <span class="rank-badge">📋 매장 크루 포스(POS) · 매대 치트시트</span>
+          <span class="cat-step">SLIDE 05 / 05</span>
+        </div>
+        <h2 class="prod-title">시트팩 3종 빌단가 UP 한눈에 보기 & 응대 3계명</h2>
+        <p class="prod-sub">낱개 구매 고객에게 "장당 단가 절감 + 공짜 증정 매수"를 숫자로 짚어주세요!</p>
+      </div>
+
+      <table class="sum-table">
+        <thead>
+          <tr>
+            <th>상품명 (시트팩)</th>
+            <th>1매 단품가</th>
+            <th>증정·대용량 기획가</th>
+            <th>1매당 단가 비교</th>
+            <th>빌단가 상승폭</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-name">1. 메디힐 티트리 에센셜</td>
+            <td>1,000원 (1매)</td>
+            <td><strong>9,900원</strong> (10+1매)</td>
+            <td>1,000원 → <strong>900원</strong></td>
+            <td class="td-up">+8,900원 UP</td>
+          </tr>
+          <tr>
+            <td class="td-name">2. 토리든 다이브인 수분</td>
+            <td>1,500원 (1매)<br/><span style="font-size:10.5px;color:#6b7280;">(3매입 4,500원)</span></td>
+            <td><strong>13,500원</strong> (8+2매)</td>
+            <td>1,500원 → <strong>1,350원</strong></td>
+            <td class="td-up">+12,000원 UP<br/><span style="font-size:10.5px;">(3매 대비 +9,000원)</span></td>
+          </tr>
+          <tr>
+            <td class="td-name">3. 넘버즈인 3번 결세럼</td>
+            <td>2,000원 (1매)</td>
+            <td><strong>8,000원</strong> (4+1매)</td>
+            <td>2,000원 → <strong>1,600원</strong></td>
+            <td class="td-up">+6,000원 UP</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="guide-card">
+        <div class="guide-title">🎯 매장 크루(Crew) 고객 접점 응대 3계명 & 추가 입수 꿀팁</div>
+        <ul class="guide-list">
+          <li>
+            <strong>1. 낱개 2~3장 고객이 1순위 타깃:</strong> 마스크팩 월에서 시트팩 2~3장을 고르는 고객에게 <em>"낱개 몇 장 가격에 조금만 보태시면 본품 1~2장이 공짜로 더 들어있는 박스 기획이 있다"</em>고 즉시 안내하세요.
+          </li>
+          <li>
+            <strong>2. 현장 즉시 픽업 혜택 강조 (이탈 방지):</strong> <em>"10+1, 4+1 증정 기획은 매장에서도 가장 먼저 빠지는 인기 구성이라 재고 있을 때 바로 챙겨가시면 오늘 밤부터 바로 1일 1팩 하실 수 있다"</em>고 강조하세요.
+          </li>
+          <li>
+            <strong>3. 피부 고민별 +1 크로스셀링:</strong> 진정팩(메디힐)엔 <strong>스팟패치</strong>, 수분팩(토리든)엔 <strong>1/2 화장솜·립에센스</strong>, 결케어팩(넘버즈인)엔 <strong>1회분 코팩·실리콘 브러쉬</strong>를 연결해 입수와 빌단가를 동시에 잡으세요!
+          </li>
+        </ul>
+      </div>
+
+      <div class="prod-footer">
+        <span>올리브영 매장 크루 교육 및 현장 세일즈 가이드</span>
+        <span>OLIVE YOUNG STORE CREW SALES BOOK</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentSlideIndex = 0;
+    const slides = document.querySelectorAll('.slide');
+    const navBtns = document.querySelectorAll('.nav-btn');
+
+    function showSlide(index) {
+      slides.forEach((s, i) => {
+        s.classList.toggle('active', i === index);
+      });
+      navBtns.forEach((b, i) => {
+        b.classList.toggle('active', i === index);
+      });
+      currentSlideIndex = index;
+    }
+
+    function downloadCurrentCard() {
+      const target = document.getElementById('cardCaptureArea');
+      html2canvas(target, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `올리브영_시트팩_빌단가UP_카드뉴스_슬라이드${currentSlideIndex + 1}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>
